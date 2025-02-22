@@ -39,6 +39,11 @@
   --color-chart-4: hsl(var(--chart-4));
   --color-chart-5: hsl(var(--chart-5));
 
+  --color-brand-bg: #f2f2f2;
+  --color-brand-logo-text: #594e48;
+  --color-brand-text: #2a2522;
+  --color-brand-btn-bg: #111111;
+
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
