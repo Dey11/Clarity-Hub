@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface Subtopic {
   name: string;
@@ -25,6 +26,7 @@ interface RoadmapClientProps {
 }
 
 export default function RoadmapClient({ initialData, id }: RoadmapClientProps) {
+  const router = useRouter();
   const [roadmapData, setRoadmapData] = useState<RoadmapData>(initialData);
   const [selectedSubtopic, setSelectedSubtopic] = useState<string | null>(null);
   const [subtopicDetails, setSubtopicDetails] = useState<string>("");
@@ -74,6 +76,30 @@ export default function RoadmapClient({ initialData, id }: RoadmapClientProps) {
     }
   };
 
+  const handleTakeQuiz = async (topicName: string) => {
+    try {
+      const response = await fetch("/api/quiz", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          topic: topicName,
+          difficulty: "beginner",
+          questionCount: "5",
+          questionType: "multiple-choice",
+        }),
+      });
+
+      const data = await response.json();
+      if (data.id) {
+        router.push(`/quiz/${data.id}`);
+      }
+    } catch (error) {
+      console.error("Error creating quiz:", error);
+    }
+  };
+
   return (
     <div className="p-10 pl-32">
       <div className="mb-8">
@@ -86,7 +112,15 @@ export default function RoadmapClient({ initialData, id }: RoadmapClientProps) {
       <div className="space-y-8">
         {roadmapData.topics.map((topic, topicIndex) => (
           <div key={topic.name} className="rounded-xl bg-white p-6 shadow-lg">
-            <h3 className="mb-4 text-xl font-semibold">{topic.name}</h3>
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-xl font-semibold">{topic.name}</h3>
+              <button
+                onClick={() => handleTakeQuiz(topic.name)}
+                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              >
+                Take Quiz
+              </button>
+            </div>
             <div className="space-y-3">
               {topic.subtopics.map((subtopic, subtopicIndex) => (
                 <div key={subtopic.name} className="space-y-2">
