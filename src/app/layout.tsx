@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
+import { DM_Sans } from "next/font/google";
 import { Suspense } from "react";
 
-import Header from "@/components/header";
 import Providers from "@/components/providers";
 
 import "./globals.css";
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  weight: "400",
+});
 
 export const metadata: Metadata = {
   title: "ClarityHub",
@@ -20,9 +25,10 @@ export default function RootLayout({
   return (
     <Providers>
       <html lang="en">
-        <body className={`bg-brand-bg tracking-wide antialiased`}>
-          {/* <Header /> */}
-          <main className="mx-auto max-w-[1440px]">
+        <body
+          className={`bg-brand-bg ${dmSans.className} tracking-wide antialiased`}
+        >
+          <main className="mx-auto">
             <Suspense>{children}</Suspense>
           </main>
         </body>

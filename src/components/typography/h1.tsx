@@ -17,7 +17,7 @@ export function H1({
   return (
     <h1
       className={cn(
-        `${aboreto.className} scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl`,
+        `scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl`,
         className
       )}
     >

@@ -1,22 +1,27 @@
-import { SignInButton, SignedOut } from "@clerk/nextjs";
+import { SignedIn, UserButton } from "@clerk/nextjs";
 
 import { H3 } from "./typography/h3";
 import { Button } from "./ui/button";
 
-[].forEach(function (ok) {
-  console.log(ok);
-});
-
 const Header = () => {
   return (
-    <header className="flex border-b border-black p-3">
-      <div className="mx-auto flex w-full max-w-(--breakpoint-lg) items-center justify-between">
-        <H3>Logo</H3>
-        <SignedOut>
-          <Button asChild>
-            <SignInButton />
-          </Button>
-        </SignedOut>
+    <header className="">
+      <div className="flex w-full items-center justify-between">
+        <H3 className="text-brand-logo-text">ClarityHub</H3>
+        <div className="flex gap-3">
+          <div className="text-brand-logo-text flex items-center gap-1.5 rounded-lg bg-[#F8D7AF] px-2 py-1 text-xs">
+            <div className="border-brand-logo-text flex size-4 items-center justify-center rounded-full border">
+              i
+            </div>
+            Personalize your content!
+          </div>
+
+          <SignedIn>
+            <Button asChild>
+              <UserButton />
+            </Button>
+          </SignedIn>
+        </div>
       </div>
     </header>
   );
