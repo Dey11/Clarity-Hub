@@ -37,10 +37,10 @@ export async function GET(
           name: subtopic,
           isCompleted: item.completedSubtopics.includes(subtopic),
         })),
+        resources: item.resources || [],
+        youtube_link: item.youtubeLink || "",
       })),
       completion_time: roadmap.completionTime,
-      resources: roadmap.RoadmapItem[0]?.resources || [],
-      youtube_link: roadmap.RoadmapItem[0]?.youtubeLink || "",
     };
 
     return NextResponse.json(formattedRoadmap);

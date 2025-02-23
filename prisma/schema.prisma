@@ -70,6 +70,7 @@ model Quiz {
   userId    String
   user      User       @relation(fields: [userId], references: [id])
   topic     String
+  score     Float?     @default(0)
   createdAt DateTime   @default(now())
   QuizItem  QuizItem[]
 }

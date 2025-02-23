@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+
 import { auth } from "@clerk/nextjs/server";
 import { z } from "zod";
 
@@ -6,7 +7,9 @@ import { prisma } from "@/lib/db";
 
 const quizSchema = z.object({
   topic: z.string().min(1, "Topic is required"),
-  num_questions: z.number().min(1).max(20),
+  difficulty: z.enum(["beginner", "intermediate", "advanced"]),
+  questionCount: z.string().transform((val) => parseInt(val, 10)),
+  questionType: z.enum(["multiple-choice", "true-false", "mixed"]),
 });
 
 type QuizQuestion = {

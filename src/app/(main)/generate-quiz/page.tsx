@@ -20,12 +20,17 @@ export default function GenerateQuiz() {
   const [difficulty, setDifficulty] = useState("intermediate");
   const [questionCount, setQuestionCount] = useState("5");
   const [questionType, setQuestionType] = useState("multiple-choice");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError("");
+
     try {
-      const response = await fetch("/api/generate-quiz", {
+      const response = await fetch("/api/quiz", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -38,12 +43,18 @@ export default function GenerateQuiz() {
         }),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-        const data = await response.json();
         router.push(`/quiz/${data.id}`);
+      } else {
+        setError(data.error || "Failed to generate quiz");
       }
     } catch (error) {
       console.error("Error generating quiz:", error);
+      setError("An unexpected error occurred");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -122,8 +133,18 @@ export default function GenerateQuiz() {
           </Select>
         </div>
 
-        <Button type="submit" className="w-fit rounded-none text-lg">
-          GENERATE
+        {error && (
+          <div className="rounded-md bg-red-50 p-4 text-red-700">
+            {error}
+          </div>
+        )}
+
+        <Button 
+          type="submit" 
+          className="w-fit rounded-none text-lg"
+          disabled={isLoading}
+        >
+          {isLoading ? "Generating..." : "GENERATE"}
         </Button>
       </form>
     </div>
