@@ -8,11 +8,58 @@ datasource db {
 }
 
 model User {
-  id        String   @id
+  id        String    @id
   name      String?
   username  String?
-  email     String   @unique
+  email     String    @unique
   password  String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Roadmap   Roadmap[]
+}
+
+model Roadmap {
+  id             String         @id @default(uuid())
+  userId         String
+  syllabus       String
+  subject        String
+  level          String?
+  exam           String?
+  difficulty     Difficulty     @default(intermediate)
+  completionTime Int            @default(4)
+  priorKnowledge PriorKnowledge @default(beginner)
+
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt   DateTime      @default(now())
+  RoadmapItem RoadmapItem[]
+}
+
+enum Difficulty {
+  beginner
+  intermediate
+  advanced
+}
+
+enum PriorKnowledge {
+  none
+  beginner
+  intermediate
+  advanced
+}
+
+model RoadmapItem {
+  id        String  @id @default(uuid())
+  roadmapId String
+  roadmap   Roadmap @relation(fields: [roadmapId], references: [id])
+
+  name               String
+  subtopics          String[]
+  completedSubtopics String[]
+  completionTime     Int
+  resources          String[]
+  youtubeLink        String?
+  generatedText      String?
+
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { H2 } from "@/components/typography/h2";
 import { Para } from "@/components/typography/para";
@@ -10,12 +11,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 interface Subtopic {
   name: string;
   isCompleted: boolean;
-}
-
-interface Subtopic {
-  name: string;
-  isCompleted: boolean;
-  aiStudyMaterial?: string;
 }
 
 interface Topic {
@@ -31,64 +26,67 @@ interface Roadmap {
 }
 
 export default function RoadmapView({ params }: { params: { id: string } }) {
-  // In a real app, fetch the roadmap data using the ID
-  const [roadmap, setRoadmap] = useState<Roadmap>({
-    topics: [
-      {
-        name: "Introduction to Database Management Systems",
-        subtopics: [
-          { name: "Purpose of Database Systems", isCompleted: false },
-          { name: "Data Models", isCompleted: false },
-          { name: "Database Languages", isCompleted: false },
-          { name: "Transaction Management", isCompleted: false },
-        ],
-      },
-      {
-        name: "Advanced Database Concepts",
-        subtopics: [
-          { name: "Query Optimization", isCompleted: false },
-          { name: "Concurrency Control", isCompleted: false },
-          { name: "Database Recovery", isCompleted: false },
-          { name: "Distributed Databases", isCompleted: false },
-        ],
-      },
-    ],
-    completion_time: 4,
-    resources: [
-      "Silberschatz, Korth and Sudarshan, 'Database System Concepts'",
-      "Ramakrishnan and Gehrke, 'Database Management Systems'",
-      "Garcia-Molina, Ullman, and Widom, 'Database Systems: The Complete Book'",
-    ],
-    youtube_link: "https://www.youtube.com/watch?v=6Iu45VZGQDk",
-  });
+  const [roadmap, setRoadmap] = useState<Roadmap | null>(null);
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
-  const [selectedTopic, setSelectedTopic] = useState<number | null>(null);
-  const [showAiContent, setShowAiContent] = useState<{ [key: string]: boolean }>({}); 
+  useEffect(() => {
+    const fetchRoadmap = async () => {
+      try {
+        const response = await fetch(`/api/roadmap/${params.id}`);
+        if (!response.ok) {
+          const data = await response.json();
+          if (response.status === 401) {
+            router.push("/sign-in");
+            return;
+          }
+          throw new Error(data.error || "Failed to fetch roadmap");
+        }
+        const data = await response.json();
+        setRoadmap(data);
+      } catch (error) {
+        setError(error instanceof Error ? error.message : "Something went wrong");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRoadmap();
+  }, [params.id, router]);
 
   const toggleSubtopic = (topicIndex: number, subtopicIndex: number) => {
+    if (!roadmap) return;
+
     const updatedTopics = [...roadmap.topics];
-    updatedTopics[topicIndex].subtopics[subtopicIndex].isCompleted = 
+    updatedTopics[topicIndex].subtopics[subtopicIndex].isCompleted =
       !updatedTopics[topicIndex].subtopics[subtopicIndex].isCompleted;
     setRoadmap({ ...roadmap, topics: updatedTopics });
   };
 
-  const handleTakeQuiz = (topicIndex: number) => {
-    const completedSubtopics = roadmap.topics[topicIndex].subtopics
-      .filter(subtopic => subtopic.isCompleted)
-      .map(subtopic => subtopic.name);
-    
-    // Mock API call to generate quiz
-    console.log('Generating quiz for completed topics:', completedSubtopics);
-    alert('Quiz generation feature coming soon!');
-  };
+  if (loading) {
+    return (
+      <div className="p-10 pl-32">
+        <Para>Loading roadmap...</Para>
+      </div>
+    );
+  }
 
-  const toggleAiContent = (topicIndex: number, subtopicIndex: number) => {
-    const key = `${topicIndex}-${subtopicIndex}`;
-    setShowAiContent(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
-  };
+  if (error) {
+    return (
+      <div className="p-10 pl-32">
+        <Para className="text-red-500">{error}</Para>
+      </div>
+    );
+  }
+
+  if (!roadmap) {
+    return (
+      <div className="p-10 pl-32">
+        <Para>Roadmap not found</Para>
+      </div>
+    );
+  }
 
   return (
     <div className="p-10 pl-32">
@@ -101,12 +99,6 @@ export default function RoadmapView({ params }: { params: { id: string } }) {
           <div key={topicIndex} className="rounded-xl bg-white p-6">
             <div className="mb-6 flex items-center justify-between">
               <H2>{topic.name}</H2>
-              <Button
-                onClick={() => handleTakeQuiz(topicIndex)}
-                className="bg-brand-logo-text text-white hover:bg-brand-logo-text/90"
-              >
-                Take Quiz
-              </Button>
             </div>
 
             <div className="grid gap-8 lg:grid-cols-2">
@@ -117,7 +109,9 @@ export default function RoadmapView({ params }: { params: { id: string } }) {
                       <div className="flex items-center gap-3">
                         <Checkbox
                           checked={subtopic.isCompleted}
-                          onCheckedChange={() => toggleSubtopic(topicIndex, subtopicIndex)}
+                          onCheckedChange={() =>
+                            toggleSubtopic(topicIndex, subtopicIndex)
+                          }
                         />
                         <span
                           className={`text-lg ${subtopic.isCompleted ? "text-gray-400 line-through" : ""}`}
@@ -125,32 +119,21 @@ export default function RoadmapView({ params }: { params: { id: string } }) {
                           {subtopic.name}
                         </span>
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => toggleAiContent(topicIndex, subtopicIndex)}
-                      >
-                        {showAiContent[`${topicIndex}-${subtopicIndex}`] ? "Hide Content" : "Learn More"}
-                      </Button>
                     </div>
-                    {showAiContent[`${topicIndex}-${subtopicIndex}`] && (
-                      <div className="ml-10 rounded-lg bg-gray-50 p-4">
-                        <p className="text-sm text-gray-600">
-                          AI-generated study material for {subtopic.name} will appear here.
-                          This content will include key concepts, examples, and practice questions.
-                        </p>
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
 
               <div className="flex flex-col gap-6">
                 <div className="rounded-xl bg-gray-50 p-6">
-                  <h3 className="mb-4 text-xl font-semibold">Recommended Resources</h3>
+                  <h3 className="mb-4 text-xl font-semibold">
+                    Recommended Resources
+                  </h3>
                   <ul className="list-inside list-disc space-y-2">
                     {roadmap.resources.map((resource, index) => (
-                      <li key={index} className="text-lg">{resource}</li>
+                      <li key={index} className="text-lg">
+                        {resource}
+                      </li>
                     ))}
                   </ul>
                 </div>

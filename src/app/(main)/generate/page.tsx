@@ -16,26 +16,38 @@ import {
 } from "@/components/ui/select";
 
 export default function GenerateRoadmap() {
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [topic, setTopic] = useState("");
+  const [subject, setSubject] = useState("");
+  const [level, setLevel] = useState("");
+  const [exam, setExam] = useState("");
   const [difficulty, setDifficulty] = useState("intermediate");
   const [timeline, setTimeline] = useState("4");
-  const [learningStyle, setLearningStyle] = useState("balanced");
   const [priorKnowledge, setPriorKnowledge] = useState("beginner");
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      setLoading(true);
+      if (!topic || !subject || !level || !exam) {
+        setError("Please fill in all the fields");
+        return;
+      }
+      setError("");
       const response = await fetch("/api/generate-roadmap", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          subject,
+          level,
+          exam,
           topic,
           difficulty,
           timeline,
-          learningStyle,
           priorKnowledge,
         }),
       });
@@ -46,6 +58,9 @@ export default function GenerateRoadmap() {
       }
     } catch (error) {
       console.error("Error generating roadmap:", error);
+      setError("An error occurred while generating the roadmap");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -68,10 +83,49 @@ export default function GenerateRoadmap() {
           </label>
           <Input
             id="topic"
-            placeholder="Ex: Database management"
+            placeholder="Ex: Data definition language, data manipulation language, etc."
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            className="h-32 resize-none rounded-xl bg-white p-4"
+            className="h-32 resize-none rounded-lg bg-white p-4"
+          />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label htmlFor="subject" className="text-lg font-medium">
+            Subject name
+          </label>
+          <Input
+            id="subject"
+            placeholder="Ex: Database management"
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
+            className="rounded-lg bg-white p-4"
+          />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label htmlFor="level" className="text-lg font-medium">
+            Course level
+          </label>
+          <Input
+            id="level"
+            placeholder="Ex: BTech 4th semester"
+            value={level}
+            onChange={(e) => setLevel(e.target.value)}
+            className="rounded-lg bg-white p-4"
+          />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label htmlFor="exam" className="text-lg font-medium">
+            Exam
+          </label>
+          <Input
+            id="exam"
+            placeholder="Ex: GATE"
+            value={exam}
+            onChange={(e) => setExam(e.target.value)}
+            className="rounded-lg bg-white p-4"
           />
         </div>
 
@@ -100,27 +154,11 @@ export default function GenerateRoadmap() {
               <SelectValue placeholder="Select timeline" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="1">1 week</SelectItem>
               <SelectItem value="2">2 weeks</SelectItem>
               <SelectItem value="4">4 weeks</SelectItem>
               <SelectItem value="8">8 weeks</SelectItem>
               <SelectItem value="12">12 weeks</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <label htmlFor="learningStyle" className="text-lg font-medium">
-            Preferred Learning Style
-          </label>
-          <Select value={learningStyle} onValueChange={setLearningStyle}>
-            <SelectTrigger className="bg-white text-lg">
-              <SelectValue placeholder="Select learning style" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="visual">Visual (videos, diagrams, charts)</SelectItem>
-              <SelectItem value="textual">Textual (books, articles, documentation)</SelectItem>
-              <SelectItem value="practical">Practical (exercises, projects, hands-on)</SelectItem>
-              <SelectItem value="balanced">Balanced Mix</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -142,9 +180,15 @@ export default function GenerateRoadmap() {
           </Select>
         </div>
 
-        <Button type="submit" className="w-fit rounded-none text-lg">
+        <Button
+          type="submit"
+          disabled={loading}
+          className="w-fit rounded-none text-lg"
+        >
           GENERATE
         </Button>
+
+        {error && <p className="text-red-500">{error}</p>}
       </form>
     </div>
   );
