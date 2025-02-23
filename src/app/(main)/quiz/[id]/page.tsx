@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { H2 } from "@/components/typography/h2";
 import { Para } from "@/components/typography/para";
@@ -20,77 +20,67 @@ interface Quiz {
   questions: Question[];
 }
 
-export default function QuizView({ params }: { params: { id: string } }) {
+export default async function QuizView({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const p = await params;
+  const [quiz, setQuiz] = useState<Quiz | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: number }>({});
+  const [selectedAnswers, setSelectedAnswers] = useState<{
+    [key: number]: number;
+  }>({});
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState(0);
 
-  // Mock quiz data - in a real app, this would be fetched based on the ID
-  const [quiz] = useState<Quiz>({
-    topic: "Database Management Systems",
-    description: "Test your knowledge of basic database concepts",
-    questions: [
-      {
-        id: 1,
-        text: "What is the primary purpose of a Database Management System?",
-        options: [
-          "To store data only",
-          "To manage and organize data efficiently",
-          "To create backups",
-          "To generate reports",
-        ],
-        correctAnswer: 1,
-      },
-      {
-        id: 2,
-        text: "Which of the following is NOT a type of database model?",
-        options: [
-          "Relational Model",
-          "Network Model",
-          "Linear Model",
-          "Hierarchical Model",
-        ],
-        correctAnswer: 2,
-      },
-      {
-        id: 3,
-        text: "What is a primary key in a database?",
-        options: [
-          "The first column in a table",
-          "A unique identifier for each record",
-          "The most important data in a table",
-          "A password for database access",
-        ],
-        correctAnswer: 1,
-      },
-    ],
-  });
+  useEffect(() => {
+    const fetchQuiz = async () => {
+      try {
+        const response = await fetch(`/api/quiz/${p.id}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch quiz");
+        }
+        const data = await response.json();
+        setQuiz(data);
+      } catch (err) {
+        setError("Failed to load quiz. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchQuiz();
+  }, [p.id]);
 
   const handleAnswerSelect = (questionId: number, answerIndex: number) => {
-    setSelectedAnswers(prev => ({
+    setSelectedAnswers((prev) => ({
       ...prev,
       [questionId]: answerIndex,
     }));
   };
 
   const handleNext = () => {
-    if (currentQuestion < quiz.questions.length - 1) {
-      setCurrentQuestion(prev => prev + 1);
+    if (quiz && currentQuestion < quiz.questions.length - 1) {
+      setCurrentQuestion((prev) => prev + 1);
     }
   };
 
   const handlePrevious = () => {
     if (currentQuestion > 0) {
-      setCurrentQuestion(prev => prev - 1);
+      setCurrentQuestion((prev) => prev - 1);
     }
   };
 
   const handleSubmit = () => {
+    if (!quiz) return;
+
     const totalQuestions = quiz.questions.length;
     let correctAnswers = 0;
 
-    quiz.questions.forEach(question => {
+    quiz.questions.forEach((question) => {
       if (selectedAnswers[question.id] === question.correctAnswer) {
         correctAnswers++;
       }
@@ -99,6 +89,22 @@ export default function QuizView({ params }: { params: { id: string } }) {
     setScore((correctAnswers / totalQuestions) * 100);
     setShowResults(true);
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-10 pl-32">
+        <Para>Loading quiz...</Para>
+      </div>
+    );
+  }
+
+  if (error || !quiz) {
+    return (
+      <div className="p-10 pl-32">
+        <Para className="text-red-500">{error || "Quiz not found"}</Para>
+      </div>
+    );
+  }
 
   const question = quiz.questions[currentQuestion];
 
@@ -110,19 +116,24 @@ export default function QuizView({ params }: { params: { id: string } }) {
       </div>
 
       {!showResults ? (
-        <div className="rounded-xl bg-white p-6">
+        <div className="rounded-xl bg-white p-6 shadow-lg">
           <div className="mb-6">
             <div className="mb-2 flex justify-between">
               <span className="text-sm text-gray-500">
                 Question {currentQuestion + 1} of {quiz.questions.length}
               </span>
               <span className="text-sm text-gray-500">
-                {Math.round((Object.keys(selectedAnswers).length / quiz.questions.length) * 100)}% Complete
+                {Math.round(
+                  (Object.keys(selectedAnswers).length /
+                    quiz.questions.length) *
+                    100
+                )}
+                % Complete
               </span>
             </div>
             <div className="h-2 w-full rounded-full bg-gray-200">
               <div
-                className="h-2 rounded-full bg-brand-logo-text transition-all"
+                className="bg-brand-logo-text h-2 rounded-full transition-all"
                 style={{
                   width: `${(Object.keys(selectedAnswers).length / quiz.questions.length) * 100}%`,
                 }}
@@ -134,15 +145,20 @@ export default function QuizView({ params }: { params: { id: string } }) {
             <h3 className="mb-6 text-xl font-semibold">{question.text}</h3>
             <RadioGroup
               value={selectedAnswers[question.id]?.toString() || ""}
-              onValueChange={(value) => handleAnswerSelect(question.id, parseInt(value))}
+              onValueChange={(value) =>
+                handleAnswerSelect(question.id, parseInt(value))
+              }
               className="flex flex-col gap-4"
             >
               {question.options.map((option, index) => (
                 <div key={index} className="flex items-center space-x-2">
-                  <RadioGroupItem value={index.toString()} id={`option-${index}`} />
+                  <RadioGroupItem
+                    value={index.toString()}
+                    id={`option-${index}`}
+                  />
                   <label
                     htmlFor={`option-${index}`}
-                    className="text-lg font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    className="text-lg leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
                     {option}
                   </label>
@@ -162,15 +178,17 @@ export default function QuizView({ params }: { params: { id: string } }) {
             {currentQuestion === quiz.questions.length - 1 ? (
               <Button
                 onClick={handleSubmit}
-                className="bg-brand-logo-text text-white hover:bg-brand-logo-text/90"
-                disabled={Object.keys(selectedAnswers).length !== quiz.questions.length}
+                className="bg-brand-logo-text hover:bg-brand-logo-text/90 text-white"
+                disabled={
+                  Object.keys(selectedAnswers).length !== quiz.questions.length
+                }
               >
                 Submit
               </Button>
             ) : (
               <Button
                 onClick={handleNext}
-                className="bg-brand-logo-text text-white hover:bg-brand-logo-text/90"
+                className="bg-brand-logo-text hover:bg-brand-logo-text/90 text-white"
                 disabled={!selectedAnswers[question.id]}
               >
                 Next
@@ -179,18 +197,17 @@ export default function QuizView({ params }: { params: { id: string } }) {
           </div>
         </div>
       ) : (
-        <div className="rounded-xl bg-white p-6">
+        <div className="rounded-xl bg-white p-6 shadow-lg">
           <div className="mb-6 text-center">
-            <h3 className="mb-4 text-2xl font-bold">
-              Quiz Complete!
-            </h3>
+            <h3 className="mb-4 text-2xl font-bold">Quiz Complete!</h3>
             <div className="mb-6">
-              <span className="text-4xl font-bold text-brand-logo-text">
+              <span className="text-brand-logo-text text-4xl font-bold">
                 {Math.round(score)}%
               </span>
             </div>
             <Para>
-              You got {Math.round((score / 100) * quiz.questions.length)} out of {quiz.questions.length} questions correct.
+              You got {Math.round((score / 100) * quiz.questions.length)} out of{" "}
+              {quiz.questions.length} questions correct.
             </Para>
           </div>
 
@@ -202,7 +219,7 @@ export default function QuizView({ params }: { params: { id: string } }) {
                 setSelectedAnswers({});
                 setScore(0);
               }}
-              className="bg-brand-logo-text text-white hover:bg-brand-logo-text/90"
+              className="bg-brand-logo-text hover:bg-brand-logo-text/90 text-white"
             >
               Retake Quiz
             </Button>

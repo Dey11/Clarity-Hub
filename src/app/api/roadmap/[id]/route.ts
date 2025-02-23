@@ -1,37 +1,33 @@
 import { NextResponse } from "next/server";
+
 import { auth } from "@clerk/nextjs/server";
+
 import { prisma } from "@/lib/db";
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const roadmap = await prisma.roadmap.findUnique({
-      where: { id: params.id },
+      where: { id: (await params).id },
       include: {
         RoadmapItem: true,
       },
     });
 
     if (!roadmap) {
-      return NextResponse.json(
-        { error: "Roadmap not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Roadmap not found" }, { status: 404 });
     }
 
     if (roadmap.userId !== userId) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
     const formattedRoadmap = {

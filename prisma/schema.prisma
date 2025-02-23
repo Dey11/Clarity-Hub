@@ -16,6 +16,7 @@ model User {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   Roadmap   Roadmap[]
+  Quiz      Quiz[]
 }
 
 model Roadmap {
@@ -61,5 +62,24 @@ model RoadmapItem {
   youtubeLink        String?
   generatedText      String?
 
+  createdAt DateTime @default(now())
+}
+
+model Quiz {
+  id        String     @id @default(uuid())
+  userId    String
+  user      User       @relation(fields: [userId], references: [id])
+  topic     String
+  createdAt DateTime   @default(now())
+  QuizItem  QuizItem[]
+}
+
+model QuizItem {
+  id        String   @id @default(uuid())
+  quizId    String
+  quiz      Quiz     @relation(fields: [quizId], references: [id])
+  question  String
+  options   String[]
+  answer    String
   createdAt DateTime @default(now())
 }

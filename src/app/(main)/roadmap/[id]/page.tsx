@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import { H2 } from "@/components/typography/h2";
 import { Para } from "@/components/typography/para";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 
 interface Subtopic {
@@ -25,7 +24,12 @@ interface Roadmap {
   youtube_link: string;
 }
 
-export default function RoadmapView({ params }: { params: { id: string } }) {
+export default async function RoadmapView({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const p = await params;
   const [roadmap, setRoadmap] = useState<Roadmap | null>(null);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(true);
@@ -34,7 +38,7 @@ export default function RoadmapView({ params }: { params: { id: string } }) {
   useEffect(() => {
     const fetchRoadmap = async () => {
       try {
-        const response = await fetch(`/api/roadmap/${params.id}`);
+        const response = await fetch(`/api/roadmap/${p.id}`);
         if (!response.ok) {
           const data = await response.json();
           if (response.status === 401) {
@@ -46,14 +50,16 @@ export default function RoadmapView({ params }: { params: { id: string } }) {
         const data = await response.json();
         setRoadmap(data);
       } catch (error) {
-        setError(error instanceof Error ? error.message : "Something went wrong");
+        setError(
+          error instanceof Error ? error.message : "Something went wrong"
+        );
       } finally {
         setLoading(false);
       }
     };
 
     fetchRoadmap();
-  }, [params.id, router]);
+  }, [p.id, router]);
 
   const toggleSubtopic = (topicIndex: number, subtopicIndex: number) => {
     if (!roadmap) return;
