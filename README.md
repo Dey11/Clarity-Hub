@@ -70,8 +70,11 @@ pnpm install
 ```env
 DATABASE_URL="your-postgresql-url"
 CLERK_SECRET_KEY="your-clerk-secret-key"
-CLERK_PUBLISHABLE_KEY="your-clerk-publishable-key"
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="your-clerk-publishable-key"
+SIGNING_SECRET="your-webhook-secret"
 DATA_API="your-ai-api-endpoint"
+ROADMAP_API="your-ai-api-endpoint"
+QUIZ_API="your-ai-api-endpoint"
 ```
 
 4. Run database migrations
