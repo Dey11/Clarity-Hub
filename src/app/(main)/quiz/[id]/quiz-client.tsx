@@ -194,7 +194,7 @@ export function QuizClient({ id }: { id: string }) {
               <Button
                 onClick={handleNext}
                 className="bg-brand-logo-text hover:bg-brand-logo-text/90 text-white"
-                disabled={!selectedAnswers[question.id]}
+                disabled={selectedAnswers[question.id] === undefined}
               >
                 Next
               </Button>
