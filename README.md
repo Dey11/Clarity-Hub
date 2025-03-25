@@ -2,6 +2,10 @@
 
 An intelligent learning platform that leverages AI to generate personalized study roadmaps, interactive quizzes, and comprehensive study materials. Built for DUHacks, this platform aims to revolutionize the way students approach their academic journey.
 
+Login credentials:
+shreyandey1102@gmail.com
+randompass02
+
 ## Team Members
 
 - [Shreyan](<[Shreyan](https://github.com/dey11)>)
