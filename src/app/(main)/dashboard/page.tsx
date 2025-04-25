@@ -32,7 +32,7 @@ export default async function Dashboard() {
     orderBy: { createdAt: "desc" },
   });
   return (
-    <div className="p-10 pl-32">
+    <div className="p-5 md:p-10 md:pl-32">
       <div className="mb-10">
         <H2>Generate Content</H2>
         <Para>
@@ -40,7 +40,7 @@ export default async function Dashboard() {
           learning.
         </Para>
 
-        <div className="flex flex-wrap gap-10 pt-10">
+        <div className="flex flex-wrap gap-5 pt-5 md:gap-10 md:pt-10">
           {features.map((feature) => (
             <FeatureBox key={feature.id} feature={feature} />
           ))}

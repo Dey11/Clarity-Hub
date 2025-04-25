@@ -65,7 +65,7 @@ export default function GenerateRoadmap() {
   };
 
   return (
-    <div className="p-10 pl-32">
+    <div className="p-5 md:p-10 md:pl-32">
       <div>
         <H2>Generate Study Roadmaps</H2>
         <Para>

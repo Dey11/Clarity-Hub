@@ -113,7 +113,7 @@ export function QuizClient({ id }: { id: string }) {
 
   if (error || !quiz) {
     return (
-      <div className="p-10 pl-32">
+      <div className="p-5 md:p-10 md:pl-32">
         <Para className="text-red-500">{error || "Quiz not found"}</Para>
       </div>
     );
@@ -122,7 +122,7 @@ export function QuizClient({ id }: { id: string }) {
   const question = quiz.questions[currentQuestion];
 
   return (
-    <div className="p-10 pl-32">
+    <div className="p-5 md:p-10 md:pl-32">
       <div className="mb-10">
         <H2>{quiz.topic}</H2>
       </div>

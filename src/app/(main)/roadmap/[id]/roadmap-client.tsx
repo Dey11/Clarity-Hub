@@ -115,7 +115,7 @@ export default function RoadmapClient({ initialData, id }: RoadmapClientProps) {
   };
 
   return (
-    <div className="p-10 pl-32">
+    <div className="p-5 md:p-10 md:pl-32">
       <div className="mb-8">
         <h2 className="mb-4 text-2xl font-bold">Your Learning Roadmap</h2>
         <p className="text-gray-600">

@@ -59,7 +59,7 @@ export default function GenerateQuiz() {
   };
 
   return (
-    <div className="p-10 pl-32">
+    <div className="p-5 md:p-10 md:pl-32">
       <div>
         <H2>Generate Quiz</H2>
         <Para>
@@ -134,13 +134,11 @@ export default function GenerateQuiz() {
         </div>
 
         {error && (
-          <div className="rounded-md bg-red-50 p-4 text-red-700">
-            {error}
-          </div>
+          <div className="rounded-md bg-red-50 p-4 text-red-700">{error}</div>
         )}
 
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           className="w-fit rounded-none text-lg"
           disabled={isLoading}
         >

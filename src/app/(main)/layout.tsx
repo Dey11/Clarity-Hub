@@ -19,12 +19,12 @@ export default async function DashboardLayout({
 
   return (
     <div className="mx-auto">
-      <div className="fixed flex h-[100dvh] w-20 flex-col items-center gap-7 bg-white py-10">
-        <Link href="/">
+      <div className="fixed bottom-0 left-0 z-10 flex w-full flex-row items-center justify-around bg-white py-3 shadow-lg md:h-[100dvh] md:w-20 md:flex-col md:items-center md:justify-center md:gap-7 md:py-10 md:shadow-none">
+        <Link href="/" className="flex items-center justify-center">
           <Image src="/logo.svg" width={25} height={25} alt="logo" />
         </Link>
-        <div className="h-[2px] w-10 rounded-xl bg-gray-400" />
-        <Link href={"/generate"}>
+        <div className="hidden h-[2px] w-10 rounded-xl bg-gray-400 md:block" />
+        <Link href={"/generate"} className="flex items-center justify-center">
           <Image
             src="/dashboard/roadmap.svg"
             width={25}
@@ -32,11 +32,15 @@ export default async function DashboardLayout({
             alt="logo"
           />
         </Link>
-        <Link href={"/generate-quiz"}>
+        <Link
+          href={"/generate-quiz"}
+          className="flex items-center justify-center"
+        >
           <Image src="/dashboard/quiz.svg" width={25} height={25} alt="logo" />
         </Link>
       </div>
-      <div className="p-10 pl-28">
+
+      <div className="p-5 pb-16 md:p-10 md:pl-28">
         <Suspense
           fallback={
             <div className="h-10">
