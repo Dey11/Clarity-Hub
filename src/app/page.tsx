@@ -23,7 +23,7 @@ export default function Home() {
           </Para>
 
           <Link className="mt-5" href={"/dashboard"}>
-            <Button className="cursor-pointer rounded-none sm:w-fit">
+            <Button className="rounded-none shadow-md transition-all duration-300 hover:shadow-lg sm:w-fit">
               GET STARTED
             </Button>
           </Link>

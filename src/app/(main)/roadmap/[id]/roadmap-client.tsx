@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 interface Subtopic {
   name: string;
@@ -60,8 +62,14 @@ export default function RoadmapClient({ initialData, id }: RoadmapClientProps) {
   };
 
   const handleReadMore = async (subtopicName: string) => {
+    // If already showing this subtopic, don't fetch again
+    if (selectedSubtopic === subtopicName) return;
+
     try {
-      // Mock API call - replace with actual API endpoint
+      // Store which subtopic is loading
+      const loadingSubtopic = subtopicName;
+      setSelectedSubtopic(`loading:${loadingSubtopic}`);
+      setSubtopicDetails("");
       const response = await fetch(
         `/api/subtopic-details?name=${encodeURIComponent(subtopicName)}`
       );
@@ -73,7 +81,13 @@ export default function RoadmapClient({ initialData, id }: RoadmapClientProps) {
     } catch (error) {
       console.error("Error fetching subtopic details:", error);
       setSubtopicDetails("Failed to load additional information.");
+      setSelectedSubtopic("error");
     }
+  };
+
+  const handleHideDetails = () => {
+    setSelectedSubtopic(null);
+    setSubtopicDetails("");
   };
 
   const handleTakeQuiz = async (topicName: string) => {
@@ -139,12 +153,28 @@ export default function RoadmapClient({ initialData, id }: RoadmapClientProps) {
                       {subtopic.name}
                     </span>
                     <button
-                      onClick={() => handleReadMore(subtopic.name)}
-                      className="ml-2 text-sm text-blue-600 hover:underline"
+                      onClick={() =>
+                        selectedSubtopic === subtopic.name
+                          ? handleHideDetails()
+                          : handleReadMore(subtopic.name)
+                      }
+                      className="ml-2 cursor-pointer text-sm text-blue-600 hover:underline"
                     >
-                      Read More
+                      {selectedSubtopic === subtopic.name
+                        ? "Hide Details"
+                        : "Read More"}
                     </button>
                   </div>
+                  {selectedSubtopic &&
+                    selectedSubtopic.startsWith("loading:") &&
+                    selectedSubtopic.substring(8) === subtopic.name && (
+                      <div className="mt-2 ml-8 flex items-center justify-center rounded-lg bg-gray-50 p-4">
+                        <LoadingSpinner size="sm" />
+                        <span className="ml-2 text-sm text-gray-500">
+                          Loading details...
+                        </span>
+                      </div>
+                    )}
                   {selectedSubtopic === subtopic.name && (
                     <div className="mt-2 ml-8 rounded-lg bg-gray-50 p-4">
                       <p className="text-sm text-gray-700">{subtopicDetails}</p>

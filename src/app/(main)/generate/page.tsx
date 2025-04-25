@@ -180,15 +180,14 @@ export default function GenerateRoadmap() {
           </Select>
         </div>
 
+        {error && <p className="text-red-500">{error}</p>}
         <Button
           type="submit"
           disabled={loading}
           className="w-fit rounded-none text-lg"
         >
-          GENERATE
+          {loading ? "Generating..." : "Generate"}
         </Button>
-
-        {error && <p className="text-red-500">{error}</p>}
       </form>
     </div>
   );

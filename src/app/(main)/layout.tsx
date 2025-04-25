@@ -6,6 +6,8 @@ import { auth } from "@clerk/nextjs/server";
 
 import "@/app/globals.css";
 import Header from "@/components/header";
+import { Loading } from "@/components/ui/loading";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 export default async function DashboardLayout({
   children,
@@ -35,9 +37,17 @@ export default async function DashboardLayout({
         </Link>
       </div>
       <div className="p-10 pl-28">
-        <Header />
+        <Suspense
+          fallback={
+            <div className="h-10">
+              <LoadingSpinner size="sm" />
+            </div>
+          }
+        >
+          <Header />
+        </Suspense>
       </div>
-      <Suspense>{children}</Suspense>
+      <Loading>{children}</Loading>
     </div>
   );
 }

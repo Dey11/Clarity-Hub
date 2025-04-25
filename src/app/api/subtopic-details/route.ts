@@ -14,7 +14,7 @@ export async function GET(req: Request) {
 
     const url = new URL(req.url);
     const subtopicName = url.searchParams.get("name");
-
+    console.log(subtopicName);
     if (!subtopicName) {
       return NextResponse.json(
         { error: "Subtopic name is required" },
@@ -23,23 +23,23 @@ export async function GET(req: Request) {
     }
 
     // Check if we have cached data in the database
-    const existingDetails = await prisma.roadmapItem.findFirst({
-      where: {
-        subtopics: {
-          has: subtopicName,
-        },
-        generatedText: {
-          not: null,
-        },
-      },
-      select: {
-        generatedText: true,
-      },
-    });
+    // const existingDetails = await prisma.roadmapItem.findFirst({
+    //   where: {
+    //     subtopics: {
+    //       has: subtopicName,
+    //     },
+    //     generatedText: {
+    //       not: null,
+    //     },
+    //   },
+    //   select: {
+    //     generatedText: true,
+    //   },
+    // });
 
-    if (existingDetails?.generatedText) {
-      return NextResponse.json({ details: existingDetails.generatedText });
-    }
+    // if (existingDetails?.generatedText) {
+    //   return NextResponse.json({ details: existingDetails.generatedText });
+    // }
 
     // If no cached data, fetch from external API
     const response = await fetch(process.env.DATA_API!, {
@@ -57,31 +57,31 @@ export async function GET(req: Request) {
     const data = await response.json();
 
     // Store the fetched data in the database
-    await prisma.roadmapItem.updateMany({
-      where: {
-        subtopics: {
-          has: subtopicName,
-        },
-      },
-      data: {
-        generatedText: data[0].answer,
-      },
-    });
+    // await prisma.roadmapItem.updateMany({
+    //   where: {
+    //     subtopics: {
+    //       has: subtopicName,
+    //     },
+    //   },
+    //   data: {
+    //     generatedText: data[0].answer,
+    //   },
+    // });
 
     // Verify the update by retrieving the updated record
-    const updatedDetails = await prisma.roadmapItem.findFirst({
-      where: {
-        subtopics: {
-          has: subtopicName,
-        },
-        generatedText: {
-          not: null,
-        },
-      },
-      select: {
-        generatedText: true,
-      },
-    });
+    // const updatedDetails = await prisma.roadmapItem.findFirst({
+    //   where: {
+    //     subtopics: {
+    //       has: subtopicName,
+    //     },
+    //     generatedText: {
+    //       not: null,
+    //     },
+    //   },
+    //   select: {
+    //     generatedText: true,
+    //   },
+    // });
 
     return NextResponse.json({ details: data[0].answer });
   } catch (error) {

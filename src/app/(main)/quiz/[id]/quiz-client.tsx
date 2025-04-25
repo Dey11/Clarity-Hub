@@ -75,7 +75,10 @@ export function QuizClient({ id }: { id: string }) {
     let correctAnswers = 0;
 
     quiz.questions.forEach((question, index) => {
-      if (selectedAnswers[question.id] === question.options.indexOf(question.answer)) {
+      if (
+        selectedAnswers[question.id] ===
+        question.options.indexOf(question.answer)
+      ) {
         correctAnswers++;
       }
     });
@@ -86,21 +89,24 @@ export function QuizClient({ id }: { id: string }) {
 
     try {
       await fetch(`/api/quiz/${id}/score`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ score: finalScore }),
       });
     } catch (error) {
-      console.error('Failed to save quiz score:', error);
+      console.error("Failed to save quiz score:", error);
     }
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-10 pl-32">
-        <Para>Loading quiz...</Para>
+      <div className="flex h-[50vh] w-full items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="border-brand-logo-text h-12 w-12 animate-spin rounded-full border-4 border-t-transparent" />
+          <Para>Loading quiz...</Para>
+        </div>
       </div>
     );
   }
@@ -133,7 +139,8 @@ export function QuizClient({ id }: { id: string }) {
                   (Object.keys(selectedAnswers).length /
                     quiz.questions.length) *
                     100
-                )}% Complete
+                )}
+                % Complete
               </span>
             </div>
             <div className="h-2 w-full rounded-full bg-gray-200">
